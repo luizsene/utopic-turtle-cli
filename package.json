@@ -1,0 +1,21 @@
+{
+  "name": "cli-utopic-turtle",
+  "version": "0.0.1",
+  "description": "Nodejs CLI",
+  "main": "bin/turtle",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "cli",
+    "nodejs"
+  ],
+  "author": "Fábio Pereira <fabio.pereira.gti@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^2.9.0"
+  },
+  "bin":{
+  "turtle": "./bin/turtle"
+  }
+}
