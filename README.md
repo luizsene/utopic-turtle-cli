@@ -1,4 +1,4 @@
 # Utopic Turtle CLI :turtle: :rocket:
 
- ## What is that ?
+## What is that ?
  Simple CLI with Nodejs
