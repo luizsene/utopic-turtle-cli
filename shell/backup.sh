@@ -1,5 +1,5 @@
 #!/bin/sh
-                                  #
+
 
 # Definindo parametros do MySQL
 echo "  -- Definindo parametros do MySQL ..."
