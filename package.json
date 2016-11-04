@@ -13,9 +13,10 @@
   "author": "Fábio Pereira <fabio.pereira.gti@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "cli-spinner": "^0.2.5",
     "commander": "^2.9.0"
   },
-  "bin":{
-  "turtle": "./bin/turtle"
+  "bin": {
+    "turtle": "./bin/turtle"
   }
 }
