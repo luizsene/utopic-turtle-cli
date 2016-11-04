@@ -1,4 +1,4 @@
 /node_modules
-lib/servidores.js
-log/*.txt
-log/*.html
+/lib/servidores.js
+/log/*.txt
+/log/*.html
