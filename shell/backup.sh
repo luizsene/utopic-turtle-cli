@@ -1,33 +1,37 @@
 #!/bin/sh
 
+# -- INICIO CONFIGURAÇÃO --
+
+#configura nome do BACKUP
+NOME_BKP="nomeaqui_";
+
 #Configuracao FTP destino do BACKUP
 FTP_ATIVADO="TRUE"
-FTPSERVER=""
-USERNAME=""
-PASSWORD=""
-LOCALDIR=""
-
-
-#Configuracao para data no arquivo de backup
-DATAA=`date +%Y-%m-%d`
+FTPSERVER="0.0.0.0"
+USERNAME="nomeusuario"
+PASSWORD="senhaaqui"
+LOCALDIR="/BACKUP/nomeaqui"
 
 #Configuracao para data no arquivo de backup
-DATA=`date +%Y-%m-%d`
+DATA=$NOME_BKP`date +%Y-%m-%d`
 
 # diretorio do backup
-DIRETORIOFONTE="bkp"
+DIRETORIOFONTE="/home/nomeaqui/public_html"
 
 # diretorio aonde sera feito o backup
-DIRETORIOARQBCK="teste/bkp1"
+DIRETORIOARQBCK="/home/nomeaqui/BACKUP"
 
 # Definindo parametros do MySQL
 echo "  -- Definindo parametros do MySQL ..."
 #BACKUP = TRUE para fazer bkp do banco  BABKUP =  FALSE para desativar bkp do banco
 BACKUP_BANCO="FALSE"
-DB_NAME='dbname'
-DB_USER='dbuser'
-DB_PASS='dbpass'
+DB_NAME='nome_bd'
+DB_USER='nome_user'
+DB_PASS='senha_bd'
 DB_PARAM='--add-drop-table --add-locks --extended-insert --single-transaction -quick'
+
+
+# -- FIM CONFIGURAÇÃO --
 
 
 if [ $BACKUP_BANCO != "FALSE" ]; 
@@ -94,7 +98,7 @@ ls -l
 
 # fazendo o backup
 echo "Fazendo Backup..."
-tar -cjvf $DATAA.tar.bz2 $DIRETORIOFONTE
+tar -cjvf $DATA.tar.bz2 $DIRETORIOFONTE
 
 
 echo "Entrando no diretorio de envio de arquivos"
