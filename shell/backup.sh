@@ -1,54 +1,101 @@
 #!/bin/sh
 
+#Configuracao FTP destino do BACKUP
+FTP_ATIVADO="TRUE"
+FTPSERVER=""
+USERNAME=""
+PASSWORD=""
+LOCALDIR=""
+
+
+#Configuracao para data no arquivo de backup
+DATAA=`date +%Y-%m-%d`
+
+#Configuracao para data no arquivo de backup
+DATA=`date +%Y-%m-%d`
+
+# diretorio do backup
+DIRETORIOFONTE="bkp"
+
+# diretorio aonde sera feito o backup
+DIRETORIOARQBCK="teste/bkp1"
 
 # Definindo parametros do MySQL
 echo "  -- Definindo parametros do MySQL ..."
+#BACKUP = TRUE para fazer bkp do banco  BABKUP =  FALSE para desativar bkp do banco
+BACKUP_BANCO="FALSE"
 DB_NAME='dbname'
 DB_USER='dbuser'
 DB_PASS='dbpass'
 DB_PARAM='--add-drop-table --add-locks --extended-insert --single-transaction -quick'
 
-# Definindo parametros do sistema
-echo "  -- Definindo parametros do sistema ..."
-DATE=`date +%Y-%m-%d`
-MYSQLDUMP=/usr/bin/mysqldump
-BACKUP_DIR=/backup/mysql
-BACKUP_NAME=mysql-$DATE.sql
-BACKUP_TAR=mysql-$DATE.tar
 
-#Gerando arquivo sql
-echo "  -- Gerando Backup da base de dados $DB_NAME em $BACKUP_DIR/$BACKUP_NAME ..."
-$MYSQLDUMP $DB_NAME $DB_PARAM -u $DB_USER -p$DB_PASS > $BACKUP_DIR/$BACKUP_NAME
+if [ $BACKUP_BANCO != "FALSE" ]; 
+	then
+	# Definindo parametros do sistema
+	echo "NOTA: CONFIGURANDO DADOS PARA BACKUP DO MYSQL"
+	DATE=`date +%Y-%m-%d`
+	MYSQLDUMP=/usr/bin/mysqldump
+	BACKUP_DIR="backup/mysql"
+	BACKUP_NAME=mysql-$DATE.sql
+	BACKUP_TAR=mysql-$DATE.tar
 
-# Compactando arquivo em tar
-echo "  -- Compactando arquivo em tar ..."
-tar -cf $BACKUP_DIR/$BACKUP_TAR -C $BACKUP_DIR $BACKUP_NAME
+	if [ ! -d $MYSQLDUMP ]; 
+	 then
+		echo "ERRO: MYSQLDUMP não encontrado $MYSQLDUM"
+	 else
+		if [ -d $BACKUP_DIR ]; 
+		 then
+			#Gerando arquivo sql
+			echo "  -- Gerando Backup da base de dados $DB_NAME em $BACKUP_DIR/$BACKUP_NAME ..."
+			$MYSQLDUMP $DB_NAME $DB_PARAM -u $DB_USER -p$DB_PASS > $BACKUP_DIR/$BACKUP_NAME
+
+			# Compactando arquivo em tar
+			#echo "  -- Compactando arquivo em tar ..."
+			#tar -cf $BACKUP_DIR/$BACKUP_TAR -C $BACKUP_DIR $BACKUP_NAME
+		 else
+			echo "ERRO: Impossivel fazer BACKUP do banco de dados!!!"
+		fi
+	fi
+ else
+	echo "NOTA: OPÇÃO BACKUP MYSQL DESATIVADA"
+fi
 
 
 
-#Configuracao para data no arquivo de backup
-DATAA=`date +%Y-%m-%dx%H-%M`
 
-# diretorio do backup
-DIRETORIOFONTE=""
+# Verifica se existe a pasta
+if [ ! -d $DIRETORIOFONTE ]; then
+      echo "ERRO: A Pasta FONTE: $DIRETORIOFONTE nao existe!!!, saindo do Backup"
+          exit 1
+fi
 
-# diretorio aonde sera feito o backup
-DIRETORIOARQBCK=""
+echo "NOTA: Pasta FONTE OK: $DIRETORIOFONTE"
+
+if [ ! -d $DIRETORIOARQBCK ]; then
+      echo "NOTA: A Pasta de $DIRETORIOARQBCK nao existe!!! Criando..."
+      mkdir -p $DIRETORIOARQBCK
+      if [ "$?" != "0" ]; then
+          echo "ERRO: A Pasta $DIRETORIOARQBCK nao pode ser criada, saindo do Backup"
+          exit 1
+      fi
+      echo "NOTA: Pasta Criada" 
+fi
+
+
 
 # Entrando no diretorio de backup
-echo "Entrando no diretorio de Backup"
+echo "Entrando no diretorio de Backup..."
 cd $DIRETORIOARQBCK
 
 # Listando Diretorio
-echo "Listando diretorio"
+echo "Listando diretorio..."
 ls -l
 
 # fazendo o backup
 echo "Fazendo Backup..."
 tar -cjvf $DATAA.tar.bz2 $DIRETORIOFONTE
 
-#Configuracao para data no arquivo de backup
-DATA=`date +%Y-%m-%dx%H-%M`
 
 echo "Entrando no diretorio de envio de arquivos"
 cd $DIRETORIOARQBCK
@@ -57,36 +104,31 @@ echo "Confirmando Diretorio..."
 ls -l
 
 # compactando o arquivo para que nao fique muito grande e comer a banda da lan.
-echo "Compactando arquivo..."
-tar -cjvf $DATA.tar.bz2 $DATAA.tar.bz2
+#echo "Compactando arquivo..."
+#tar -cjvf $DATA.tar.bz2 $DATAA.tar.bz2
 
 # espere por segundos
 sleep 5
 
-FTPSERVER=""
-USERNAME=""
-PASSWORD=""
-LOCALDIR=""
 
+if [ $FTP_ATIVADO != "FALSE" ]; then
+ echo "PREPARANDO FTP..."
 # conecte-se ao servidor FTP e envie o arquivo
-echo "conectando no servidor FTP..."
-
-ftp -ivn $FTPSERVER << FTP
-user $USERNAME $PASSWORD
-
-echo "Conectado e dentro do diretorio raiz."
-cd $LOCALDIR
-
-echo "Confirmando Diretorio..."
-ls -l
-
-#Upando Backup
-echo "Upando arquivo..."
-put $DATA.tar.bz2
-
-echo"listando arquivos"
-ls -l
-
-bye
+echo "NOTA: conectando no servidor FTP..."
+ftp -inv << EOF 2> ftp.error
+    open $FTPSERVER
+    user $USERNAME $PASSWORD
+    cd $LOCALDIR
+    ls -l
+    binary
+    put $DATA.tar.bz2
+    ls -l
+    quit
 EOF
-FTP
+test -s ftp.error && echo "ERRO: FALHA ENVIO FTP" || rm ftp.error
+else
+ echo "NOTA: ENVIO FTP DESATIVADO"
+fi
+echo "FIM"
+exit 1
+
