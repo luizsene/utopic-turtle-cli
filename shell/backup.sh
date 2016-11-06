@@ -44,10 +44,17 @@ if [ $BACKUP_BANCO != "FALSE" ];
 	BACKUP_NAME=mysql-$DATE.sql
 	BACKUP_TAR=mysql-$DATE.tar
 
-	if [ ! -d $MYSQLDUMP ]; 
-	 then
-		echo "ERRO: MYSQLDUMP não encontrado $MYSQLDUM"
-	 else
+	if [ ! -d $BACKUP_DIR ]; then
+		      echo "NOTA: A Pasta de $BACKUP_DIR nao existe!!! Criando..."
+		      mkdir -p $BACKUP_DIR
+		      if [ "$?" != "0" ]; then
+			  echo "ERRO: A Pasta $BACKUP_DIR nao pode ser criada, saindo do Backup"
+			  
+		      fi
+		      echo "NOTA: Pasta Criada $BACKUP_DIR" 
+		fi
+
+	
 		if [ -d $BACKUP_DIR ]; 
 		 then
 			#Gerando arquivo sql
@@ -60,7 +67,6 @@ if [ $BACKUP_BANCO != "FALSE" ];
 		 else
 			echo "ERRO: Impossivel fazer BACKUP do banco de dados!!!"
 		fi
-	fi
  else
 	echo "NOTA: OPÇÃO BACKUP MYSQL DESATIVADA"
 fi
